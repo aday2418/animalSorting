@@ -25,6 +25,8 @@ class predictiveModel:
         predictions = self.model.predict(img_array)
         specific_score = predictions[0][self.index]  # Extract the score using the category index
         return specific_score * 100  # Convert to percentage
+    
+    #The below code returns the top 10 similar scores
     """img = image.load_img(self.drawing, target_size=(224, 224))
         img_array = image.img_to_array(img)
         img_array = np.expand_dims(img_array, axis=0)
