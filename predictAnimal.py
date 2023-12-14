@@ -3,6 +3,32 @@ from tensorflow.keras.applications import MobileNetV2
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input, decode_predictions
 from tensorflow.keras.preprocessing import image
 import numpy as np
+import json
+
+def find_class_index(class_name):
+    # Path to the ImageNet class index file
+    class_index_path = 'imagenet_class_index.json'
+
+    # Convert class_name to lowercase for case-insensitive comparison
+    class_name_lower = class_name.lower()
+
+    # Load the class index file
+    with open(class_index_path) as file:
+        class_index = json.load(file)
+
+    # Search for the class
+    for index, label in class_index.items():
+        # Convert label to lowercase and split to get the individual names
+        label_names = label.lower().split(', ')
+        if class_name_lower in label_names:
+            return int(index)
+
+    return "Not a vaild classname"
+
+# Example usage
+stringName = 'lion'
+lion_index = find_class_index(stringName)
+print(f"The index for {stringName} is: {lion_index}")
 
 class predictiveModel:
 
