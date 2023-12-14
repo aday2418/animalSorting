@@ -6,10 +6,6 @@ import numpy as np
 import json
 
 
-
-# Example usage
-
-
 class predictiveModel:
 
     def __init__(self, filePath, objectName):
