@@ -5,36 +5,17 @@ from tensorflow.keras.preprocessing import image
 import numpy as np
 import json
 
-def find_class_index(class_name):
-    # Path to the ImageNet class index file
-    class_index_path = 'imagenet_class_index.json'
 
-    # Convert class_name to lowercase for case-insensitive comparison
-    class_name_lower = class_name.lower()
-
-    # Load the class index file
-    with open(class_index_path) as file:
-        class_index = json.load(file)
-
-    # Search for the class
-    for index, label in class_index.items():
-        # Convert label to lowercase and split to get the individual names
-        label_names = label.lower().split(', ')
-        if class_name_lower in label_names:
-            return int(index)
-
-    return "Not a vaild classname"
 
 # Example usage
-stringName = 'lion'
-lion_index = find_class_index(stringName)
-print(f"The index for {stringName} is: {lion_index}")
+
 
 class predictiveModel:
 
-    def __init__(self, filePath):
+    def __init__(self, filePath, objectName):
         self.drawing = filePath
         self.model = self.load_model()
+        self.index = self.find_class_index(objectName)
 
     def load_model(self):
         return MobileNetV2(weights='imagenet')
@@ -46,7 +27,35 @@ class predictiveModel:
         img_array = preprocess_input(img_array)
 
         predictions = self.model.predict(img_array)
-        return decode_predictions(predictions, top=10)[0]
+        specific_score = predictions[0][self.index]  # Extract the score using the category index
+        return specific_score * 100  # Convert to percentage
+    """img = image.load_img(self.drawing, target_size=(224, 224))
+        img_array = image.img_to_array(img)
+        img_array = np.expand_dims(img_array, axis=0)
+        img_array = preprocess_input(img_array)
+
+        predictions = self.model.predict(img_array)
+        return decode_predictions(predictions, top=10)[0]"""
+    
+    def find_class_index(self, class_name):
+        # Path to the ImageNet class index file
+        class_index_path = 'imagenet_class_index.json'
+
+        # Convert class_name to lowercase for case-insensitive comparison
+        class_name_lower = class_name.lower()
+
+        # Load the class index file
+        with open(class_index_path) as file:
+            class_index = json.load(file)
+
+        # Search for the class
+        for index, label in class_index.items():
+            # Convert label to lowercase and split to get the individual names
+            label_names = label.lower().split(', ')
+            if class_name_lower in label_names:
+                return int(index)
+        print("Not a valid classname")
+        return None
     
 
     

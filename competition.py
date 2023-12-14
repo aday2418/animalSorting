@@ -3,14 +3,20 @@ import tkinter as tk
 from tkinter import simpledialog
 from PIL import ImageGrab
 from predictAnimal import predictiveModel
+import json
 
 
 # List of animals
-animals = ["lion", "tiger", "bear", "elephant", "giraffe"]
-
-# Function to randomly select an animal
-def choose_animal():
-    return random.choice(animals)
+def load_animal_names(json_path):
+    #print(json_path)
+    with open(json_path, 'r') as file:
+        data = json.load(file)
+        animal_list = [label.split(', ')[0] for index, label in data.items()]
+        return animal_list
+    
+def choose_animal(json_path):
+    #print(json_path)
+    return random.choice(load_animal_names(json_path))
 
 def save_canvas(canvas, filename):
     # Calculate the position of the canvas
@@ -23,7 +29,7 @@ def save_canvas(canvas, filename):
     ImageGrab.grab(bbox=(x, y, x1, y1)).save(filename)
 
 # Placeholder for drawing submission (In a real application, this would be more complex)
-def create_drawing_window(user):
+def create_drawing_window(user, filename):
     def paint(event):
         x1, y1 = (event.x - 1), (event.y - 1)
         x2, y2 = (event.x + 1), (event.y + 1)
@@ -38,7 +44,7 @@ def create_drawing_window(user):
 
     # Function to handle the save operation
     def save_and_close():
-        save_canvas(canvas, f"drawing.png")
+        save_canvas(canvas, filename)
         root.destroy()
 
     # Button to save the drawing and close the window
@@ -47,30 +53,32 @@ def create_drawing_window(user):
 
     root.mainloop()
 # Placeholder for drawing comparison (This would be a complex image processing task)
-def compare_drawings(drawing1):
-    prediction = predictiveModel(drawing1)
+def get_score(drawing1, selected_animal):
+    prediction = predictiveModel(drawing1, selected_animal)
     return prediction.predict_animal()
 
-
-
-# Main program
-def predictAnimal():
+def main():
     user1 = "User 1"
     user2 = "User 2"
 
-    selected_animal = choose_animal()
+    selected_animal = choose_animal("imagenet_class_index.json")
     print(f"The selected animal is: {selected_animal}")
 
-    #create_drawing_window(user1)
+    file1 = "user1.png"
+    file2 = "user2.png"
 
-    predictions = compare_drawings("drawing.png")
-    
-    for i, (imagenet_id, label, score) in enumerate(predictions):
-        print(f"{i + 1}: {label} ({score * 100:.2f}%)")
-        if label == 'lion':
-            return score * 100
+    create_drawing_window(user1, file1)
+    create_drawing_window(user2, file2)
 
-    #print(f"The winner is: {winner}")
+    likenessScore1 = get_score(file1, selected_animal)
+    likenessScore2 = get_score(file2, selected_animal)
+   
+    print(f"User1 -- {selected_animal} likeness score: {likenessScore1}%")
+    print(f"User2 -- {selected_animal} likeness score: {likenessScore2}%")
+    if (likenessScore1 > likenessScore2):
+        print("User 1 wins!!")
+    else:
+        print("User 2 wins!!")
 
 if __name__ == "__main__":
-    predictAnimal()
+    main()
