@@ -9,7 +9,7 @@ import json
 
 # List of animals
 
-customTrainedCategories = ["bee", "zebra"]
+customTrainedCategories = ["bee"]
 
 def load_animal_names(json_path):
     with open(json_path, 'r') as file:
