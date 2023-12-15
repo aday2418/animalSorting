@@ -47,6 +47,10 @@ def create_drawing_window(user, filename, selected_animal):
         if color:
             brush_color.set(color)
 
+    def save_drawing():
+        save_canvas(canvas, filename)
+        root.destroy()  # Close the window
+
     root = tk.Tk()
     root.title(f"{user}: The selected drawing is {selected_animal}")
 
@@ -75,8 +79,8 @@ def create_drawing_window(user, filename, selected_animal):
     color_button.pack(side=tk.LEFT)
 
     # Save and Close button
-    button = tk.Button(root, text="Save and Close", command=root.destroy)
-    button.pack(side=tk.BOTTOM)
+    save_button = tk.Button(root, text="Save and Close", command=save_drawing)
+    save_button.pack(side=tk.BOTTOM)
 
     root.mainloop()
 

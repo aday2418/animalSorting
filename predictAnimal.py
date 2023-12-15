@@ -3,6 +3,7 @@ from tensorflow.keras.applications import MobileNetV2
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input, decode_predictions
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.utils import Sequence
+from tensorflow.keras.models import load_model
 import numpy as np
 import json
 from PIL import Image, ImageDraw
@@ -16,10 +17,11 @@ class predictiveModel:
         self.model = self.load_model()
         self.index = self.find_class_index(objectName)
 
-    """def load_model(self):
-        return MobileNetV2(weights='imagenet')"""
+    def load_model(self):
+        #return MobileNetV2(weights='imagenet') <-- Not trained
+        return load_model('trainedDoodleModel.h5') #<--Trained on Bee
     
-    def load_model(self, num_classes):
+    """def load_model(self, num_classes):
         # Load MobileNetV2 with ImageNet weights as a base model
         base_model = MobileNetV2(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
 
@@ -33,9 +35,9 @@ class predictiveModel:
 
         model = tf.keras.Model(inputs=base_model.input, outputs=outputs)
 
-        return model
+        return model"""
 
-    def train_model(self, train_data, val_data, epochs=10, batch_size=32):
+    """def train_model(self, train_data, val_data, epochs=10, batch_size=32):
         self.model.compile(optimizer=Adam(lr=0.0001), loss='categorical_crossentropy', metrics=['accuracy'])
 
         # Train the model
@@ -45,9 +47,9 @@ class predictiveModel:
             epochs=epochs,
             batch_size=batch_size
         )
-        return history
+        return history"""
 
-    def predict_animal(self):
+    """def predict_animal(self): <-- For the untrained model
         img = image.load_img(self.drawing, target_size=(224, 224))
         img_array = image.img_to_array(img)
         img_array = np.expand_dims(img_array, axis=0)
@@ -55,6 +57,21 @@ class predictiveModel:
 
         predictions = self.model.predict(img_array)
         specific_score = predictions[0][self.index]  # Extract the score using the category index
+        return specific_score * 100  # Convert to percentage"""
+    
+    def predict_animal(self):
+        # Load the image and convert to grayscale
+        img = Image.open(self.drawing).convert('L')
+        # Resize the image to match the model's expected input
+        img = img.resize((256, 256))
+
+        # Convert the image to a numpy array and normalize
+        img_array = np.array(img) / 255.0
+        img_array = np.expand_dims(img_array, axis=[0, -1])  # Add batch and channel dimensions
+
+        # Make predictions
+        predictions = self.model.predict(img_array)
+        specific_score = predictions[0][1]  # Extract the score using the category index
         return specific_score * 100  # Convert to percentage
     
     #The below code returns the top 10 similar scores
@@ -68,7 +85,7 @@ class predictiveModel:
     
     def find_class_index(self, class_name):
         # Path to the ImageNet class index file
-        class_index_path = 'imagenet_class_index.json'
+        class_index_path = 'json/imagenet_class_index.json'
 
         # Convert class_name to lowercase for case-insensitive comparison
         class_name_lower = class_name.lower()
