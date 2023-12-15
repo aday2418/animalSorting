@@ -8,16 +8,18 @@ import json
 
 
 # List of animals
+
+customTrainedCategories = ["bee", "zebra"]
+
 def load_animal_names(json_path):
-    #print(json_path)
     with open(json_path, 'r') as file:
         data = json.load(file)
         animal_list = [label.split(', ')[0] for index, label in data.items()]
         return animal_list
     
 def choose_animal(json_path):
-    #print(json_path)
-    return random.choice(load_animal_names(json_path))
+    #return random.choice(load_animal_names(json_path))
+    return random.choice(customTrainedCategories)
 
 def save_canvas(canvas, filename):
     # Calculate the position of the canvas
